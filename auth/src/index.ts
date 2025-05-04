@@ -8,9 +8,17 @@ import { signoutRouter } from "./routes/signout"
 import { signupRouter } from "./routes/signup"
 import { errorHandler } from "./middlewares/error-handler"
 import { NotFoundError } from "./errors/notfound-error"
+import { cookie } from "express-validator"
+import cookieSession from "cookie-session"
 const app = express()
+app.set("trust proxy", true)
 app.use(json())
-
+app.use(
+  cookieSession({
+    signed: false,
+    secure: true,
+  })
+)
 app.use(currentUserRouter)
 app.use(signinRouter)
 app.use(signoutRouter)
@@ -29,4 +37,7 @@ const start = async () => {
 app.listen(3000, () => {
   console.log("Server is running on port 3000")
 })
+if (!process.env.JWT_KEY) {
+  throw new Error("JWT_KEY must be defined")
+}
 start()
