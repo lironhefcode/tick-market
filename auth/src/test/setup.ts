@@ -1,7 +1,24 @@
 import { MongoMemoryServer } from "mongodb-memory-server"
 import mongoose from "mongoose"
 import { app } from "../app"
+import request from "supertest"
+declare global {
+  var signin: () => Promise<string[]>
+}
+global.signin = async () => {
+  const email = "test@test.com"
+  const password = "password"
+  const response = await request(app).post("/api/users/signup").send({
+    email,
+    password,
+  })
+  const cookie = response.get("Set-Cookie")
 
+  if (!cookie) {
+    throw new Error("Failed to get cookie from response")
+  }
+  return cookie
+}
 let mongo: any
 beforeAll(async () => {
   process.env.JWT_KEY = "asdfasdf"
